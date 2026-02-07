@@ -73,5 +73,5 @@ services:
       - rabbitmq
 
 volumes:
-  customer_pg
-  order_pg
+  customer_pg:
+  order_pg:
