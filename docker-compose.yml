@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  postgres_customer:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: customer_service_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - customer_pg:/var/lib/postgresql/data
+
+  postgres_order:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: order_service_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - order_pg:/var/lib/postgresql/data
+
+  customer_service:
+    build: ./customer_service
+    command: bash -c "rails db:create db:migrate db:seed && rails s -b 0.0.0.0"
+    volumes:
+      - ./customer_service:/app
+    ports:
+      - "3001:3000"
+    environment:
+      DATABASE_HOST: postgres_customer
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      - postgres_customer
+      - rabbitmq
+    
+  customer_consumer:
+    build: ./customer_service
+    command: bash -c "rails db:migrate && bin/consume_service"
+    volumes:
+      - ./customer_service:/app
+    environment:
+      DATABASE_HOST: postgres_customer
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      - customer_service
+    
+  order_service:
+    build: ./order_service
+    command: bash -c "rails db:create db:migrate && rails s -b 0.0.0.0"
+    volumes:
+      - ./order_service:/app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_HOST: postgres_order
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      RABBITMQ_HOST: rabbitmq
+      CUSTOMER_SERVICE_URL: http://customer_service:3000
+    depends_on:
+      - postgres_order
+      - customer_service
+      - rabbitmq
+
+volumes:
+  customer_pg
+  order_pg
