@@ -4,7 +4,7 @@ class OrdersController < ApplicationController
     order = Orders::CreateOrder.call(order_params)
     render json: order, status: :created
   rescue => e
-    render json: { error: e.message }, status: :unprocessable_entity
+    render json: { error: e.message }, status: :unprocessable_content
   end
 
   def index
