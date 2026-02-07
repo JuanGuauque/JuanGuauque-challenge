@@ -1,0 +1,18 @@
+# Configure Using Gemfile
+# gem "pg"
+#
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  username: juanguauque
+  password: password
+
+
+development:
+  <<: *default
+  database: customer_service_development
+
+test:
+  <<: *default
+  database: customer_service_test
