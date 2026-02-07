@@ -4,8 +4,13 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5673:5672"
+      - "15673:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   postgres_customer:
     image: postgres:15
@@ -13,6 +18,11 @@ services:
       POSTGRES_DB: customer_service_development
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
       - customer_pg:/var/lib/postgresql/data
 
@@ -22,6 +32,11 @@ services:
       POSTGRES_DB: order_service_development
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
       - order_pg:/var/lib/postgresql/data
 
@@ -38,12 +53,13 @@ services:
       DATABASE_PASSWORD: postgres
       RABBITMQ_HOST: rabbitmq
     depends_on:
-      - postgres_customer
-      - rabbitmq
-    
+      postgres_customer:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
   customer_consumer:
     build: ./customer_service
-    command: bash -c "rails db:migrate && bin/consume_service"
+    command: bash -c "bin/consume_events"
     volumes:
       - ./customer_service:/app
     environment:
@@ -52,11 +68,14 @@ services:
       DATABASE_PASSWORD: postgres
       RABBITMQ_HOST: rabbitmq
     depends_on:
-      - customer_service
+      rabbitmq:
+        condition: service_healthy
+      customer_service:
+        condition: service_started
     
   order_service:
     build: ./order_service
-    command: bash -c "rails db:create db:migrate && rails s -b 0.0.0.0"
+    command: bash -c "rails db:prepare  && rails s -b 0.0.0.0"
     volumes:
       - ./order_service:/app
     ports:
@@ -68,9 +87,10 @@ services:
       RABBITMQ_HOST: rabbitmq
       CUSTOMER_SERVICE_URL: http://customer_service:3000
     depends_on:
-      - postgres_order
-      - customer_service
-      - rabbitmq
+      postgres_order:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   customer_pg:
