@@ -10,7 +10,7 @@ class OrdersController < ApplicationController
         id: result[:customer]["id"],
         name: result[:customer]["customer_name"],
         addres: result[:customer]["address"],
-        order_count: result[:customer]["orders_count"]
+        order_count: result[:customer]["orders_count"]+1
       }
     }, status: :created
   rescue => e
