@@ -7,6 +7,6 @@ class Orders::CreateOrder
 
     OrderCreatedPublisher.publish(order)
 
-    order
+    { order: order, customer: customer }
   end
 end
