@@ -89,7 +89,7 @@ Este proceso automatizado incluye:
 |---|---|
 | Customer Service | http://localhost:3001 | 
 | Order Service | http://localhost:3000 |
-| RabbitMQ UI | http://localhost:15672 (User: `guest` / Pass: `guest`)
+| RabbitMQ UI | http://localhost:15673 (User: `guest` / Pass: `guest`)
 
 --- 
 
