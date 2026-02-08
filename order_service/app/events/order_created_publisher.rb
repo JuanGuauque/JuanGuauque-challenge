@@ -1,3 +1,4 @@
+#Crea y publica el evento para rabbitmq
 class OrderCreatedPublisher
   QUEUE_NAME = "order.created"
 

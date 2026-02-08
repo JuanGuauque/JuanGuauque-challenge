@@ -1,3 +1,4 @@
+#Escucha eventos y maneja la logica en este caso incrementa el orders_count
 class OrderCreatedConsumer
   QUEUE_NAME = "order.created"
 

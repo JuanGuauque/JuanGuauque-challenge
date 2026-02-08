@@ -1,3 +1,4 @@
+#Consultar API clientes y validar información
 class CustomerServiceClient
   include HTTParty
   base_uri ENV.fetch("CUSTOMER_SERVICE_URL", "http://localhost:3001")
