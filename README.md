@@ -87,8 +87,8 @@ Este proceso automatizado incluye:
 ## 📡 Servicios Disponibles
 | Servicio | URL |
 |---|---|
-| Customer Service | http://localhost:3000 | 
-| Order Service | http://localhost:3001 |
+| Customer Service | http://localhost:3001 | 
+| Order Service | http://localhost:3000 |
 | RabbitMQ UI | http://localhost:15672 (User: `guest` / Pass: `guest`)
 
 --- 
